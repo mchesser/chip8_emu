@@ -19,5 +19,5 @@ fn main() {
     let prog = File::open(&Path::new("test.ch8")).read_to_end();
 
     chip8.load_program(prog);
-    sdl::run(chip8);    
+    sdl::run(chip8);
 }

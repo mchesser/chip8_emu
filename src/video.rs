@@ -24,26 +24,26 @@ pub static GLYPHS: [u8,..16*5] =  [
 ];
 
 pub struct Video {
-    repr: [u8,..REPWIDTH*HEIGHT] 
+    repr: [u8,..REPWIDTH*HEIGHT]
 }
 
 impl Video {
     pub fn new() -> Video {
         Video { repr: [0x00, ..REPWIDTH*HEIGHT] }
     }
-    
+
     pub fn clear(&mut self) {
         for px in self.repr.mut_iter() {
             *px = 0x0;
         }
     }
-    
+
     pub fn draw(&mut self, x: u8, y: u8, val: u8) -> u8 {
         //assert!(x as uint < WIDTH && y as uint < HEIGHT, "Invalid draw position");
-        
+
         let i = x / 8 + y * REPWIDTH as u8;
         let shift = x % 8;
-        
+
         if shift != 0 {
             let lval = val >> shift;
             let rval = val << (8 - shift);
@@ -52,13 +52,13 @@ impl Video {
             self.repr[i] ^= lval;
             let rold = self.repr[i+1];
             self.repr[i+1] ^= rval;
-            
+
             if flipped(lold, self.repr[i]) || flipped(rold, self.repr[i+1]) { 0x0 } else { 0x1 }
         }
         else {
             let old = self.repr[i];
             self.repr[i] ^= val;
-            
+
             if flipped(old, self.repr[i]) { 0x0 } else { 0x1 }
         }
     }
