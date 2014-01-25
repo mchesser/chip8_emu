@@ -16,7 +16,7 @@ fn start(argc: int, argv: **u8) -> int {
 #[main]
 fn main() {
     let mut chip8 = chip8::Chip8::new();
-    let mut file = File::open(&Path::new("pong.ch8"));
+    let mut file = File::open(&Path::new("TESTINPUT.ch8"));
     // Load the file directly into the chip8 memory
     match file.read(chip8.mem.main) {
         Some(n) => println!("Loaded program of size: {}", n),

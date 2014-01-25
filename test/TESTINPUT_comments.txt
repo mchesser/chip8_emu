@@ -1,0 +1,9 @@
+// Tests wait for key press capabilities
+
+611E // Set V1 to 30 (center X of the screen)
+620D // Set V2 to 13 (center Y of the screen)
+F00A // Wait for key press and set key in V0
+00E0 // Clear display
+F029 // Set I to the glyph representing the value in V0
+D125 // Draw to V1, V2, 5 high
+1202 // jmp to 0x202 (line 5)

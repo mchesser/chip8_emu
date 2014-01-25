@@ -181,7 +181,8 @@ impl CPU {
 
             0xC => self.r.rnd_reg(mask11(op), mask22(op)),
             0xD => {
-                self.r.V[0xF] = mem.draw(self.r.V[mask11(op)], self.r.V[mask21(op)], mask31(op), self.r.I);
+                self.r.V[0xF] = mem.draw(self.r.V[mask11(op)], self.r.V[mask21(op)],
+                        mask31(op), self.r.I);
             },
             0xE => {
                 match mask22(op) {
