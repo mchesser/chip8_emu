@@ -18,7 +18,8 @@ impl Input {
 
     pub fn set_keydown(&mut self, key_code: u8) {
         assert!(key_code < 0x10, "Invalid key");
-        self.repr[key_code] = true
+        self.repr[key_code] = true;
+        self.key = Some(key_code);
     }
 
     pub fn set_keyup(&mut self, key_code: u8) {

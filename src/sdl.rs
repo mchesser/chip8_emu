@@ -6,6 +6,8 @@ use sdl2::{event, video, keycode};
 use sdl2::surface::Surface;
 use std::cast::transmute;
 
+static SCALE: int = 8;
+
 pub fn run(chip8: Chip8) {
     let mut chip8 = chip8;
 
@@ -14,7 +16,7 @@ pub fn run(chip8: Chip8) {
     // Initialise the window
     let window =
         match video::Window::new("CHIP8 Emulator", video::PosCentered,
-            video::PosCentered, chip8video::WIDTH as int, chip8video::HEIGHT as int, [video::OpenGL, video::Borderless]) {
+            video::PosCentered, chip8video::WIDTH as int * SCALE, chip8video::HEIGHT as int * SCALE, [video::OpenGL]) {
             Ok(window) => window,
             Err(err) => fail!(format!("failed to create window: {}", err))
     };
@@ -25,7 +27,6 @@ pub fn run(chip8: Chip8) {
             Ok(surface) => surface,
             Err(err) => fail!(format!("failed to get window surface: {}", err))
     };
-
 
     'main: loop {
         'event: loop {
@@ -59,23 +60,35 @@ pub fn run(chip8: Chip8) {
 }
 
 fn to_u8(code: keycode::KeyCode) -> Option<u8> {
+    // ----
+    // 1234
+    // QWER
+    // ASDF
+    // ZXCV
+    // ----
+    // 123C
+    // 456D
+    // 789E
+    // A0BF
+    // ----
+
     match code {
-        keycode::Num0Key => Some(0x0),
         keycode::Num1Key => Some(0x1),
         keycode::Num2Key => Some(0x2),
         keycode::Num3Key => Some(0x3),
-        keycode::Num4Key => Some(0x4),
-        keycode::Num5Key => Some(0x5),
-        keycode::Num6Key => Some(0x6),
-        keycode::Num7Key => Some(0x7),
-        keycode::Num8Key => Some(0x8),
-        keycode::Num9Key => Some(0x9),
-        keycode::AKey    => Some(0xA),
-        keycode::BKey    => Some(0xB),
-        keycode::CKey    => Some(0xC),
-        keycode::DKey    => Some(0xD),
-        keycode::EKey    => Some(0xE),
-        keycode::FKey    => Some(0xF),
+        keycode::Num4Key => Some(0xC),
+        keycode::QKey    => Some(0x4),
+        keycode::WKey    => Some(0x5),
+        keycode::EKey    => Some(0x6),
+        keycode::RKey    => Some(0xD),
+        keycode::AKey    => Some(0x7),
+        keycode::SKey    => Some(0x8),
+        keycode::DKey    => Some(0x9),
+        keycode::FKey    => Some(0xE),
+        keycode::ZKey    => Some(0xA),
+        keycode::XKey    => Some(0x0),
+        keycode::CKey    => Some(0xB),
+        keycode::VKey    => Some(0xF),
         _ => None
     }
 }
@@ -91,13 +104,16 @@ fn render_chip8_screen(surface: &mut Surface, chip8_image: &[u8]) {
             let src: *u8 = transmute(&chip8_image[0]);
 
             for src_y in range(0, chip8video::HEIGHT) {
-                for src_x in range(0, chip8video::REPWIDTH) {
-                    let row = src.offset((src_x + src_y * chip8video::REPWIDTH) as int);
-                    for xx in range(0, 8) {
-                        let pixel = if *row & (0x1 << xx) == 0 { BLACK } else { WHITE };
-                        // TODO: scale pixels
-                        *dest = pixel;
-                        dest = dest.offset(1);
+                for _ in range(0, SCALE) {
+                    for src_x in range(0, chip8video::REPWIDTH) {
+                        let row = src.offset((src_x + src_y * chip8video::REPWIDTH) as int);
+                        for xx in range(0, 8).invert() {
+                            let pixel = if *row & (0x1 << xx) == 0 { BLACK } else { WHITE };
+                            for _ in range(0, SCALE) {
+                                *dest = pixel;
+                                dest = dest.offset(1);
+                            }
+                        }
                     }
                 }
             }

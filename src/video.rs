@@ -1,4 +1,3 @@
-
 pub static WIDTH: uint = 64;
 pub static REPWIDTH: uint = WIDTH / 8;
 pub static HEIGHT: uint = 32;
@@ -39,7 +38,7 @@ impl Video {
     }
 
     pub fn draw(&mut self, x: u8, y: u8, val: u8) -> u8 {
-        //assert!(x as uint < WIDTH && y as uint < HEIGHT, "Invalid draw position");
+        // assert!(x as uint < WIDTH && y as uint < HEIGHT, "Invalid draw position");
 
         let i = x / 8 + y * REPWIDTH as u8;
         let shift = x % 8;

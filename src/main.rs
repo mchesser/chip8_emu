@@ -16,8 +16,12 @@ fn start(argc: int, argv: **u8) -> int {
 #[main]
 fn main() {
     let mut chip8 = chip8::Chip8::new();
-    let prog = File::open(&Path::new("test.ch8")).read_to_end();
+    let mut file = File::open(&Path::new("pong.ch8"));
+    // Load the file directly into the chip8 memory
+    match file.read(chip8.mem.main) {
+        Some(n) => println!("Loaded program of size: {}", n),
+        None => fail!("Found empty file")
+    }
 
-    chip8.load_program(prog);
     sdl::run(chip8);
 }

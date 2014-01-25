@@ -1,4 +1,6 @@
 /tmp/
+*.tmp.*
 *.exe
 *.dll
 *.rlib
+*.ch8

@@ -22,18 +22,15 @@ impl Chip8 {
         }
     }
 
-    pub fn load_program(&mut self, prog: &[u8]) {
-        self.mem.load(prog, mem::MAIN);
-    }
-
     /// Executes the next frame
     pub fn frame(&mut self) {
         // Tick timers at 60Hz
         if (self.timer.elapsed() >= 60) {
             self.cpu.tick();
             self.timer.reset();
-            self.cpu.exec(&mut self.mem);
         }
+
+        self.cpu.exec(&mut self.mem);
     }
 
     /// Returns the video data

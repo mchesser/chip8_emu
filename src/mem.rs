@@ -11,7 +11,7 @@ static DISPLAY: u16 = END - 256;
 static MEM_SIZE: u16 = DISPLAY - MAIN;
 
 pub struct Memory {
-    priv main: [u8, ..MEM_SIZE],
+    main: [u8, ..MEM_SIZE],
     stack: Stack,
     video: Video,
     input: Input
@@ -24,15 +24,6 @@ impl Memory {
             stack: Stack::new(),
             video: Video::new(),
             input: Input::new()
-        }
-    }
-
-    /// Load a program into memory at the specified address
-    pub fn load(&mut self, prog: &[u8], addr: u16) {
-        assert!(addr >= MAIN && addr < DISPLAY, "Invalid address");
-        //assert!(addr + prog.len() as u16 < MEM_SIZE, "Insufficient memory");
-        for i in range(0, prog.len() as u16) {
-            self.wb(addr + i as u16, prog[i]);
         }
     }
 
@@ -104,7 +95,7 @@ impl Memory {
     /// Get the address
     pub fn glyph_addr(&self, val: u8) -> u16 {
         assert!(val <= 0xF, "Invalid glyph");
-        GLYPHS + val as u16 * 8
+        GLYPHS + val as u16 * 5
     }
 
     /// Clear the display
@@ -118,8 +109,8 @@ impl Memory {
     pub fn draw(&mut self, x: u8, y: u8, h: u8, addr: u16) -> u8 {
         let mut flipped = 0x0;
         for dy in range(0, h) {
-            let glyph = *(self.map(addr + dy as u16));
-            flipped |= self.video.draw(x, y + dy, glyph);
+            let row = *(self.map(addr + dy as u16));
+            flipped |= self.video.draw(x, y + dy, row);
         }
         flipped
     }
@@ -142,14 +133,14 @@ impl Stack {
     }
 
     pub fn push(&mut self, val: u16) {
-        // assert!(i < STACK_SIZE, "Stack overflow");
+        assert!(self.i < STACK_SIZE, "Stack overflow");
 
         self.i += 1;
         self.values[self.i] = val;
     }
 
     pub fn pop(&mut self) -> u16 {
-        // assert!(i != 0, "Stack failure");
+        assert!(self.i != 0, "Stack failure");
 
         let val = self.values[self.i];
         self.i -= 1;
