@@ -5,7 +5,7 @@ use chip8::input::Input;
 pub static MAIN: u16 = 0x200;
 static END: u16 = 0xFFF;
 
-static GLYPHS: u16 = MAIN - 5 * 0xF;
+static GLYPHS: u16 = MAIN - 5 * 0x10;
 static DISPLAY: u16 = END - 256;
 
 static MEM_SIZE: u16 = DISPLAY - MAIN;
@@ -40,12 +40,6 @@ impl Memory {
     /// Writes a byte
     pub fn wb(&mut self, addr: u16, val: u8) {
         *(self.map_mut(addr)) = val;
-    }
-
-    /// Writes a word
-    pub fn ww(&mut self, addr: u16, val: u16) {
-        self.wb(addr, (val >> 8) as u8);
-        self.wb(addr+1, val as u8);
     }
 
     /// Map to mutable address
