@@ -7,7 +7,7 @@ A Chip8 emulator written in Rust. There are still some bugs which need to be fix
 
 ## Testing
 ### Working
-* Currently passes all tests in Sergey Naydenov's `SCTEST`
+* Currently passes tests in Sergey Naydenov's `SCTEST` (excluding HP48)
 * Passes `test/TESTINPUT.ch8`
 
 ### Failing
