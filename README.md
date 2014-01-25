@@ -3,6 +3,8 @@ Chip8 Rust
 
 A Chip8 emulator written in Rust. There are still some bugs which need to be fixed.
 
+![Screenshot](preview/preview.png)
+
 ## Testing
 ### Working
 * Currently passes all tests in Sergey Naydenov's `SCTEST`
