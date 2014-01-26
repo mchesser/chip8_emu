@@ -12,7 +12,7 @@ pub fn translate(op: u16) -> ~str {
                 match op {
                     0x00E0 => format!("CLR"),
                     0x00EE => format!("RET"),
-                    _      => format!("FAIL (OPCODE MISSING {:4x})", op)
+                    _      => format!("FAIL (OPCODE MISSING 0x{:04x})", op)
                 }
             },
             0x1 => format!("JMP 0x{:03x}", mask13(op)),
@@ -35,7 +35,7 @@ pub fn translate(op: u16) -> ~str {
                     0x6 => format!("SHR V{:1x}, V{:1x}", r1, r2),
                     0x7 => format!("SU2 V{:1x}, V{:1x}", r1, r2),
                     0xE => format!("SHL V{:1x}, V{:1x}", r1, r2),
-                    _   => format!("FAIL (OPCODE INVALID {:4x})", op)
+                    _   => format!("FAIL (OPCODE INVALID 0x{:04x})", op)
                 }
             },
             0x9 => format!("IF NOT V{:1x}, V{:1x}", mask11(op), mask21(op)),
@@ -47,7 +47,7 @@ pub fn translate(op: u16) -> ~str {
                 match mask22(op) {
                     0x9E => format!("KEY {}", mask11(op)),
                     0xA1 => format!("KEY NOT {}", mask11(op)),
-                    _    => format!("FAIL (OPCODE INVALID {:4x})", op)
+                    _    => format!("FAIL (OPCODE INVALID 0x{:04x})", op)
                 }
             },
             0xF => {
@@ -61,12 +61,12 @@ pub fn translate(op: u16) -> ~str {
                     0x33 => format!("BCD V{:1x}", mask11(op)),
                     0x55 => format!("WRITE V{:1x}", mask11(op)),
                     0x65 => format!("READ V{:1x}", mask11(op)),
-                    0x75 => format!("FAIL (OPCODE MISSING {:4x})", op),
-                    0x85 => format!("FAIL (OPCODE MISSING {:4x})", op),
-                    _    => format!("FAIL (OPCODE INVALID {:4x})", op)
+                    0x75 => format!("FAIL (OPCODE MISSING 0x{:04x})", op),
+                    0x85 => format!("FAIL (OPCODE MISSING 0x{:04x})", op),
+                    _    => format!("FAIL (OPCODE INVALID 0x{:04x})", op)
                 }
             },
-            
+
             _ => fail!("Unreachable code")
         }
 }
