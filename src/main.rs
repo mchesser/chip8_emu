@@ -6,6 +6,7 @@ use std::io::File;
 mod sdl;
 mod chip8;
 mod timer;
+mod disasm;
 
 #[start]
 #[cfg(not(test))]

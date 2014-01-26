@@ -25,11 +25,10 @@ impl Chip8 {
     /// Executes the next frame
     pub fn frame(&mut self) {
         // Tick timers at 60Hz
-        if (self.timer.elapsed() >= 60) {
+        if (self.timer.elapsed_seconds() >= cpu::TIMER_SPEED) {
             self.cpu.tick();
             self.timer.reset();
         }
-
         self.cpu.exec(&mut self.mem);
     }
 

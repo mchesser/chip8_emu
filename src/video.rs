@@ -65,5 +65,16 @@ impl Video {
 
 /// Returns true if any of the bits have been fliped from set to unset
 fn flipped(v1: u8, v2: u8) -> bool {
-    v1 & (!v1 | v2) != 0x0
+    v1 & !v2 != 0x0
+}
+
+#[test]
+fn test_flipped() {
+    assert!(flipped(0b_0000_0000, 0b_0001_0000) == false);
+    assert!(flipped(0b_0001_0000, 0b_0000_0000) == true);
+    assert!(flipped(0b_1010_0101, 0b_1111_1111) == false);
+    assert!(flipped(0b_1010_0101, 0b_0000_0000) == true);
+    assert!(flipped(0b_1010_0101, 0b_1010_0100) == true);
+    assert!(flipped(0b_1111_0000, 0b_1111_1111) == false);
+    assert!(flipped(0b_1111_0000, 0b_0000_1111) == true);
 }

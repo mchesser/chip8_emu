@@ -158,7 +158,8 @@ mod tests {
     fn test_read_write_word() {
         let mut mem = Memory::new();
         assert_eq!(mem.rw(MAIN as u16), 0x0000);
-        mem.ww(MAIN as u16, 0xFFFF);
+        mem.wb(MAIN as u16, 0xFF);
+        mem.wb(MAIN as u16 + 1, 0xFF);
         assert_eq!(mem.rw(MAIN as u16), 0xFFFF);
     }
 }

@@ -102,6 +102,7 @@ impl fmt::Default for Registers {
 }
 
 /// CHIP-8 Timers
+pub static TIMER_SPEED: f32 = 1.0 / 60.0;
 struct Timers {
     delay: u8,
     sound: u8
@@ -133,6 +134,7 @@ impl CPU {
 
     pub fn exec(&mut self, mem: &mut mem::Memory) {
         let op = mem.rw(self.pc);
+        // println!("{}", disasm::translate(op));
         // println!("0x{:04x}", op);
         self.pc += 2;
 
@@ -234,10 +236,10 @@ impl CPU {
 
     /// Ticks the timer one step
     pub fn tick(&mut self) {
-        if self.t.delay < 0 {
+        if self.t.delay > 0 {
             self.t.delay -= 1;
         }
-        if self.t.sound < 0 {
+        if self.t.sound > 0 {
             self.t.sound -= 1;
         }
     }
@@ -363,6 +365,26 @@ mod tests {
         assert_eq!(mask21(num), 0x0C);
         assert_eq!(mask22(num), 0xCD);
         assert_eq!(mask31(num), 0x0D);
+    }
+
+    #[test]
+    fn test_rng() {
+        // It is difficult to test RNG so this will print out a few random numbers to check
+        let mut r = Registers::new();
+        r.rnd_reg(0, 0xFF);
+        r.rnd_reg(1, 0xFF);
+        r.rnd_reg(2, 0xFF);
+        r.rnd_reg(3, 0xFF);
+        r.rnd_reg(4, 0xFF);
+        println!("{:02x} {:02x} {:02x} {:02x} {:02x}", r.V[0], r.V[1], r.V[2], r.V[3], r.V[4]);
+
+        r.rnd_reg(0, 0x01);
+        r.rnd_reg(1, 0x01);
+        r.rnd_reg(2, 0x01);
+        r.rnd_reg(3, 0x01);
+        r.rnd_reg(4, 0x01);
+        println!("{:02x} {:02x} {:02x} {:02x} {:02x}", r.V[0], r.V[1], r.V[2], r.V[3], r.V[4]);
+
     }
 
     /*#[test]
