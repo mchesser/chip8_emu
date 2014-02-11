@@ -38,7 +38,9 @@ impl Video {
     }
 
     pub fn draw(&mut self, x: u8, y: u8, val: u8) -> u8 {
-        // assert!(x as uint < WIDTH && y as uint < HEIGHT, "Invalid draw position");
+        if (x as uint) >= WIDTH || (y as uint) >= HEIGHT {
+            return 0x1;
+        }
 
         let i = x / 8 + y * REPWIDTH as u8;
         let shift = x % 8;

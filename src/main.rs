@@ -1,15 +1,14 @@
 extern mod native;
 extern mod sdl2;
-extern mod extra;
+extern mod getopts;
 
 use std::io::File;
+use getopts::{optflag,getopts};
 use std::os;
-use opts = extra::getopts::groups;
 
 mod sdl;
 mod chip8;
 mod timer;
-mod disasm;
 
 #[start]
 #[cfg(not(test))]
@@ -21,18 +20,30 @@ fn start(argc: int, argv: **u8) -> int {
 fn main() {
     let args = os::args();
     let opts = ~[
-        opts::optflag("", "disasm", "run disassembler on program")
+        optflag("", "disasm", "run disassembler on program")
     ];
-    let matches = match opts::getopts(args.tail(), opts) {
+    let matches = match getopts(args.tail(), opts) {
         Ok(m)  => { m },
         Err(f) => fail!(f.to_err_msg())
     };
 
-    let mut file = File::open(&Path::new(matches.free[0].as_slice()));
+    if matches.free.len() != 1 {
+        println!("Invalid usage");
+        return;
+    }
+
+    let mut file = match File::open(&Path::new(matches.free[0].as_slice())) {
+        Ok(f) => f,
+        Err(err) => fail!("Failed to open input program: {:?}", err)
+    };
 
     // Run the dissassembler
     if matches.opt_present("disasm") {
-        let disassembly = disasm::disassemble(file.read_to_end());
+        let input = match file.read_to_end() {
+            Ok(s) => s,
+            Err(err) => fail!("Failed to read file: {:?}", err)
+        };
+        let disassembly = chip8::disasm::disassemble(input);
         for line in disassembly.iter() {
             println!("{}", *line);
         }
@@ -41,8 +52,8 @@ fn main() {
     else {
         let mut chip8 = chip8::Chip8::new();
         match file.read(chip8.mem.main) {
-            Some(n) => println!("Loaded program of size: {}", n),
-            None => fail!("Found empty file")
+            Ok(n) => println!("Loaded program of size: {}", n),
+            Err(err) => fail!("Failed to read file: {:?}", err)
         }
         sdl::run(chip8);
     }

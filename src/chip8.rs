@@ -6,6 +6,7 @@ mod cpu;
 pub mod mem;
 pub mod video;
 pub mod input;
+pub mod disasm;
 
 pub struct Chip8 {
     cpu: CPU,
@@ -25,7 +26,7 @@ impl Chip8 {
     /// Executes the next frame
     pub fn frame(&mut self) {
         // Tick timers at 60Hz
-        if (self.timer.elapsed_seconds() >= cpu::TIMER_SPEED) {
+        if self.timer.elapsed_seconds() >= cpu::TIMER_SPEED {
             self.cpu.tick();
             self.timer.reset();
         }

@@ -107,7 +107,7 @@ fn render_chip8_screen(surface: &mut Surface, chip8_image: &[u8]) {
                 for _ in range(0, SCALE) {
                     for src_x in range(0, chip8video::REPWIDTH) {
                         let row = src.offset((src_x + src_y * chip8video::REPWIDTH) as int);
-                        for xx in range(0, 8).invert() {
+                        for xx in range(0, 8).rev() {
                             let pixel = if *row & (0x1 << xx) == 0 { BLACK } else { WHITE };
                             for _ in range(0, SCALE) {
                                 *dest = pixel;

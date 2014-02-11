@@ -114,8 +114,8 @@ impl Memory {
 static STACK_SIZE: uint = 16;
 
 struct Stack {
-    priv values: [u16, ..STACK_SIZE],
-    priv i: uint
+    values: [u16, ..STACK_SIZE],
+    i: uint
 }
 
 impl Stack {
@@ -134,7 +134,7 @@ impl Stack {
     }
 
     pub fn pop(&mut self) -> u16 {
-        assert!(self.i != 0, "Stack failure");
+        assert!(self.i != 0, "Stack underflow");
 
         let val = self.values[self.i];
         self.i -= 1;

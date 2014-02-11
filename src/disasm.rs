@@ -19,7 +19,7 @@ pub fn translate(op: u16) -> ~str {
             0x2 => format!("CLL 0x{:03x}", mask13(op)),
             0x3 => format!("IF V{:1x}, {}", mask11(op), mask22(op)),
             0x4 => format!("IF NOT V{:1x}, {}", mask11(op), mask22(op)),
-            0x5 => format!("IF V{:1x}, V{}", mask11(op), mask22(op)),
+            0x5 => format!("IF V{:1x}, V{}", mask11(op), mask21(op)),
             0x6 => format!("SET V{:1x}, {}", mask11(op), mask22(op)),
             0x7 => format!("ADD V{:1x}, {}", mask11(op), mask22(op)),
             0x8 => {
@@ -45,8 +45,8 @@ pub fn translate(op: u16) -> ~str {
             0xD => format!("DRW V{:1x}, V{:1x}, {}", mask11(op), mask21(op), mask31(op)),
             0xE => {
                 match mask22(op) {
-                    0x9E => format!("KEY {}", mask11(op)),
-                    0xA1 => format!("KEY NOT {}", mask11(op)),
+                    0x9E => format!("KEY V{:1x}", mask11(op)),
+                    0xA1 => format!("KEY NOT V{:1x}", mask11(op)),
                     _    => format!("FAIL (OPCODE INVALID 0x{:04x})", op)
                 }
             },

@@ -4,6 +4,8 @@ use std::rand;
 use std::rand::Rng;
 use std::fmt;
 
+use chip8::disasm;
+
 /// CHIP-8 Registers
 struct Registers {
     // Data registers
@@ -92,12 +94,12 @@ impl Registers {
     }
 }
 
-impl fmt::Default for Registers {
-    fn fmt(r: &Registers, f: &mut fmt::Formatter) {
+impl fmt::Show for Registers {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f.buf, "V0:{:2x} V1:{:2x} V2:{:2x} V3:{:2x} V4:{:2x} V5:{:2x} V6:{:2x} V7:{:2x} V8:{:2x} V9:{:2x} VA:{:2x} VB:{:2x} VC:{:2x} VD:{:2x} VE:{:2x} VF:{:2x} I:{:4x}",
-            r.V[0x0], r.V[0x1], r.V[0x2], r.V[0x3], r.V[0x4], r.V[0x5],
-            r.V[0x6], r.V[0x7], r.V[0x8], r.V[0x9], r.V[0xA], r.V[0xB],
-            r.V[0xC], r.V[0xD], r.V[0xE], r.V[0xF], r.I);
+            self.V[0x0], self.V[0x1], self.V[0x2], self.V[0x3], self.V[0x4], self.V[0x5],
+            self.V[0x6], self.V[0x7], self.V[0x8], self.V[0x9], self.V[0xA], self.V[0xB],
+            self.V[0xC], self.V[0xD], self.V[0xE], self.V[0xF], self.I)
     }
 }
 
@@ -134,8 +136,6 @@ impl CPU {
 
     pub fn exec(&mut self, mem: &mut mem::Memory) {
         let op = mem.rw(self.pc);
-        // println!("{}", disasm::translate(op));
-        // println!("0x{:04x}", op);
         self.pc += 2;
 
         // See http://en.wikipedia.org/wiki/CHIP-8#Opcode_table for opcode table
@@ -188,8 +188,8 @@ impl CPU {
             },
             0xE => {
                 match mask22(op) {
-                    0x9E => if mem.input.keydown(mask11(op)) { self.pc += 2 },
-                    0xA1 => if !mem.input.keydown(mask11(op)) { self.pc += 2 },
+                    0x9E => if mem.input.keydown(self.r.V[mask11(op)]) { self.pc += 2 },
+                    0xA1 => if !mem.input.keydown(self.r.V[mask11(op)]) { self.pc += 2 },
                     _    => fail!("Invalid opcode {:4x}", op)
                 }
             },
