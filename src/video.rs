@@ -38,7 +38,7 @@ impl Video {
     }
 
     pub fn draw(&mut self, x: u8, y: u8, val: u8) -> u8 {
-        if (x as uint) >= WIDTH || (y as uint) >= HEIGHT {
+        if (x as uint + 8) >= WIDTH || (y as uint) >= HEIGHT {
             return 0x1;
         }
 
