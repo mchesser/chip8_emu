@@ -6,6 +6,7 @@ A Chip8 emulator written in Rust.
 ![Screenshot](preview/preview.png)
 
 ### Working Chip8 Programs
+
 * Pong [Paul Vervalin, 1990]
 * IBM Logo
 * SQRT Test [Sergey Naydenov, 2010]
@@ -15,7 +16,8 @@ A Chip8 emulator written in Rust.
 * Minimal game [Revival Studios, 2007]
 * Sierpinski [Sergey Naydenov, 2010]
 
-###
+### Issues
+
 * Major bugs in many games
-* Flikering issues
+* Flickering issues
 * Bugs with drawing code
