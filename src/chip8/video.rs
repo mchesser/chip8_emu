@@ -1,6 +1,6 @@
-pub static WIDTH: uint = 64;
-pub static REPWIDTH: uint = WIDTH / 8;
-pub static HEIGHT: uint = 32;
+pub const WIDTH: u8 = 64;
+pub const HEIGHT: u8 = 32;
+pub const BYTES_WIDTH: u8 = WIDTH / 8;
 
 /// CHIP-8 gliphs, see: mattmik.com/chip8.html
 pub static GLYPHS: [u8,..16*5] =  [
@@ -23,51 +23,62 @@ pub static GLYPHS: [u8,..16*5] =  [
 ];
 
 pub struct Video {
-    repr: [u8,..REPWIDTH*HEIGHT]
+    pub data: [u8, ..(BYTES_WIDTH * HEIGHT) as uint],
+    pub screen_modified: bool,
 }
 
 impl Video {
     pub fn new() -> Video {
-        Video { repr: [0x00, ..REPWIDTH*HEIGHT] }
+        Video {
+            data: [0x00, ..(BYTES_WIDTH * HEIGHT) as uint],
+            screen_modified: true,
+        }
     }
 
     pub fn clear(&mut self) {
-        for px in self.repr.mut_iter() {
+        self.screen_modified = true;
+        for px in self.data.iter_mut() {
             *px = 0x0;
         }
     }
 
     pub fn draw(&mut self, x: u8, y: u8, val: u8) -> u8 {
-        if (x as uint + 8) >= WIDTH || (y as uint) >= HEIGHT {
-            return 0x1;
-        }
+        self.screen_modified = true;
 
-        let i = x / 8 + y * REPWIDTH as u8;
+        let x = x % WIDTH;
+        let y = y % HEIGHT;
+
+        let i = (x / 8 + y * BYTES_WIDTH) as uint;
         let shift = x % 8;
 
+        // This draw command was not byte aligned, so we need xor over 2 bytes
         if shift != 0 {
-            let lval = val >> shift;
-            let rval = val << (8 - shift);
+            let i2 = ((x / 8 + 1) % BYTES_WIDTH + y * BYTES_WIDTH) as uint;
 
-            let lold = self.repr[i];
-            self.repr[i] ^= lval;
-            let rold = self.repr[i+1];
-            self.repr[i+1] ^= rval;
+            let lval = val >> shift as uint;
+            let rval = val << (8 - shift as uint);
 
-            if flipped(lold, self.repr[i]) || flipped(rold, self.repr[i+1]) { 0x0 } else { 0x1 }
+            let lold = self.data[i];
+            self.data[i] ^= lval;
+            let rold = self.data[i2];
+            self.data[i2] ^= rval;
+
+            // If any bits were flipped as a result of drawing the sprite then return 1
+            if flipped(lold, self.data[i]) || flipped(rold, self.data[i2]) { 0 } else { 1 }
         }
         else {
-            let old = self.repr[i];
-            self.repr[i] ^= val;
+            let old = self.data[i];
+            self.data[i] ^= val;
 
-            if flipped(old, self.repr[i]) { 0x0 } else { 0x1 }
+            // If any bits were flipped as a result of drawing the sprite then return 1
+            if flipped(old, self.data[i]) { 0 } else { 1 }
         }
     }
 }
 
 /// Returns true if any of the bits have been fliped from set to unset
 fn flipped(v1: u8, v2: u8) -> bool {
-    v1 & !v2 != 0x0
+    v1 & !v2 != 0
 }
 
 #[test]

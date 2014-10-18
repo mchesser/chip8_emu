@@ -12,7 +12,7 @@ impl Timer {
     }
 
     pub fn elapsed(&self) -> uint {
-        self.last - sdl2::timer::get_ticks()
+        sdl2::timer::get_ticks() - self.last
     }
 
     pub fn elapsed_seconds(&self) -> f32 {
