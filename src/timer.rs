@@ -1,25 +1,26 @@
-use sdl2;
+extern crate time;
+use self::time::precise_time_s;
 
 pub struct Timer {
-    last: uint
+    last: f64
 }
 
 impl Timer {
     pub fn new() -> Timer {
         Timer {
-            last: sdl2::timer::get_ticks()
+            last: precise_time_s()
         }
     }
 
-    pub fn elapsed(&self) -> uint {
-        sdl2::timer::get_ticks() - self.last
+    pub fn elapsed(&self) -> f64 {
+        precise_time_s() - self.last
     }
 
-    pub fn elapsed_seconds(&self) -> f32 {
-        self.elapsed() as f32 / 1000.0
+    pub fn elapsed_seconds(&self) -> f64 {
+        self.elapsed()
     }
 
     pub fn reset(&mut self) {
-        self.last = sdl2::timer::get_ticks();
+        self.last = precise_time_s();
     }
 }

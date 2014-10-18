@@ -13,9 +13,9 @@ pub mod video;
 mod decoder;
 
 /// The timer speed = 60hz
-pub const TICK_RATE: f32 = 1.0 / 60.0;
+pub const TICK_RATE: f64 = 1.0 / 60.0;
 /// Clock rate of CPU = 1Mhz
-pub const CLOCK_RATE: f32 = 1.0 / 1000.0;
+pub const CLOCK_RATE: f64 = 1.0 / 1000.0;
 
 pub struct Emulator {
     pub cpu: Cpu,

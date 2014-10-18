@@ -66,7 +66,6 @@ pub fn run(mut emulator: chip8::Emulator) {
             emulator.frame();
         }
 
-
         if emulator.poll_screen() {
             render_screen(&mut surface, emulator.display());
             window.update_surface();
