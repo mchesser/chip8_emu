@@ -64,14 +64,14 @@ impl Video {
             self.data[i2] ^= rval;
 
             // If any bits were flipped as a result of drawing the sprite then return 1
-            if flipped(lold, self.data[i]) || flipped(rold, self.data[i2]) { 0 } else { 1 }
+            if flipped(lold, self.data[i]) || flipped(rold, self.data[i2]) { 1 } else { 0 }
         }
         else {
             let old = self.data[i];
             self.data[i] ^= val;
 
             // If any bits were flipped as a result of drawing the sprite then return 1
-            if flipped(old, self.data[i]) { 0 } else { 1 }
+            if flipped(old, self.data[i]) { 1 } else { 0 }
         }
     }
 }

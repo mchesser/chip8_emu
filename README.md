@@ -5,7 +5,7 @@ A Chip8 emulator written in Rust.
 
 ![Screenshot](preview/preview.png)
 
-### Working Chip8 Programs
+### Tested Chip8 Programs
 
 * Pong [Paul Vervalin, 1990]
 * IBM Logo
@@ -15,9 +15,10 @@ A Chip8 emulator written in Rust.
 * Chip8 emulator Logo [Garstyciuks]
 * Minimal game [Revival Studios, 2007]
 * Sierpinski [Sergey Naydenov, 2010]
+* Lunar Lander [Udo Pernisz, 1979]
+* Brix [Andreas Gustafsson, 1990]
+* Tetris [Fran Dachille, 1991]
 
-### Issues
+### Known Issues
 
-* Major bugs in many games
 * Flickering issues
-* Bugs with drawing code
