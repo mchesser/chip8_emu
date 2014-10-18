@@ -1,22 +1,21 @@
 Chip8 Rust
 ========
 
-A Chip8 emulator written in Rust. There are still some bugs which need to be fixed.
+A Chip8 emulator written in Rust.
 
 ![Screenshot](preview/preview.png)
 
-## Testing
-### Working
-* Currently passes tests in Sergey Naydenov's `SCTEST` (excluding HP48)
-* Passes `test/TESTINPUT.ch8`
+### Working Chip8 Programs
+* Pong [Paul Vervalin, 1990]
+* IBM Logo
+* SQRT Test [Sergey Naydenov, 2010]
+* Random Number Test [Matthew Mikolay, 2010]
+* Delay Timer Test [Matthew Mikolay, 2010]
+* Chip8 emulator Logo [Garstyciuks]
+* Minimal game [Revival Studios, 2007]
+* Sierpinski [Sergey Naydenov, 2010]
 
-### Failing
-* Fails to load `Pong [Paul Vervalin, 1990].ch8` due to Windows issues
-* Major bugs in `Brix [Andreas Gustafsson, 1990].ch8` (Causes are unknown)
-* Other games usually fail in similar ways
-
-## Plans
-* Fix remaining CPU/memory bugs
-* Fix annoying bug in Windows that fails to read 0x1a (EOF)
-* Write a programming language that compiles to chip8
-* Swap from SDL2 to GL?
+###
+* Major bugs in many games
+* Flikering issues
+* Bugs with drawing code
