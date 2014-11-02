@@ -108,7 +108,7 @@ impl Cpu {
 
     pub fn exec(&mut self, mem: &mut mem::Memory) {
         let op = chip8::decode(mem.read_word(self.pc));
-        self.pc += 2;
+        self.pc += OPCODE_SIZE;
 
         match op {
             //

@@ -23,12 +23,12 @@ pub fn run(mut emulator: chip8::Emulator) {
         WIDTH, HEIGHT, OPENGL)
     {
         Ok(window) => window,
-        Err(err) => fail!(format!("failed to create window: {}", err))
+        Err(err) => panic!(format!("failed to create window: {}", err))
     };
 
     let mut surface = match window.get_surface() {
         Ok(surface) => surface,
-        Err(err) => fail!(format!("failed to get window surface: {}", err))
+        Err(err) => panic!(format!("failed to get window surface: {}", err))
     };
 
     let mut cpu_timer = Timer::new();

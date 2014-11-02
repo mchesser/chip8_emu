@@ -29,7 +29,7 @@ pub fn decode(op: u16) -> cpu::Operation {
                 0x6 => cpu::Shr(r1, r2),
                 0x7 => cpu::SubRev(r1, r2),
                 0xE => cpu::Shl(r1, r2),
-                _ => fail!("Invalid opcode {:4x}", op)
+                _ => panic!("Invalid opcode {:4x}", op)
             }
         },
         0x9 => cpu::SkipIfNotEq(mask11(op), cpu::Reg(mask21(op))),
@@ -41,7 +41,7 @@ pub fn decode(op: u16) -> cpu::Operation {
             match mask22(op) {
                 0x9E => cpu::SkipIfKeyPressed(mask11(op)),
                 0xA1 => cpu::SkipIfKeyNotPressed(mask11(op)),
-                _ => fail!("Invalid opcode {:4x}", op)
+                _ => panic!("Invalid opcode {:4x}", op)
             }
         },
         0xF => {
@@ -57,7 +57,7 @@ pub fn decode(op: u16) -> cpu::Operation {
                 0x65 => cpu::LoadBytes(mask11(op)),
                 0x75 => cpu::Unimplemented(op),
                 0x85 => cpu::Unimplemented(op),
-                _ => fail!("Invalid opcode {:4x}", op)
+                _ => panic!("Invalid opcode {:4x}", op)
             }
         },
         _ => unreachable!(),

@@ -14,13 +14,13 @@ fn main() {
     let args = os::args();
     let mut file = match File::open(&Path::new(args[1].as_slice())) {
         Ok(f) => f,
-        Err(err) => fail!("Failed to open input program: {}", err)
+        Err(err) => panic!("Failed to open input program: {}", err)
     };
 
     let mut emulator = chip8::Emulator::new();
     match file.read(emulator.mem.ram) {
         Ok(n) => println!("Loaded program of size: {}", n),
-        Err(err) => fail!("Failed to read file: {}", err)
+        Err(err) => panic!("Failed to read file: {}", err)
     }
 
     client::run(emulator);

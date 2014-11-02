@@ -34,14 +34,14 @@ impl Memory {
             self.stack.push(addr);
         }
         else {
-            fail!("Stack overflow");
+            panic!("Stack overflow");
         }
     }
 
     pub fn stack_pop(&mut self) -> u16 {
         match self.stack.pop() {
             Some(val) => val,
-            None => fail!("Stack underflow"),
+            None => panic!("Stack underflow"),
         }
     }
 
@@ -88,13 +88,13 @@ impl Memory {
 
     fn map_addr(&self, addr: u16) -> &u8 {
         if addr >= TOTAL_MEMORY {
-            fail!("Address too large: {}", addr);
+            panic!("Address too large: {}", addr);
         }
         else if addr >= DISPLAY_START {
             &self.video.data[(addr - DISPLAY_START) as uint]
         }
         else if addr >= RESERVED_START {
-            fail!("Attempted to access reserved address: {}", addr);
+            panic!("Attempted to access reserved address: {}", addr);
         }
         else if addr >= RAM_START {
             &self.ram[(addr - RAM_START) as uint]
@@ -114,19 +114,19 @@ impl Memory {
 
     fn map_addr_mut(&mut self, addr: u16) -> &mut u8 {
         if addr >= TOTAL_MEMORY {
-            fail!("Address too large: {}", addr);
+            panic!("Address too large: {}", addr);
         }
         else if addr >= DISPLAY_START {
             &mut self.video.data[(addr - DISPLAY_START) as uint]
         }
         else if addr >= RESERVED_START {
-            fail!("Attempted to access reserved address: {}", addr);
+            panic!("Attempted to access reserved address: {}", addr);
         }
         else if addr >= RAM_START {
             &mut self.ram[(addr - RAM_START) as uint]
         }
         else if addr >= GLYPHS_START {
-            fail!("Attempted to access read only memory: {}", addr);
+            panic!("Attempted to access read only memory: {}", addr);
         }
         else { unreachable!() }
     }
