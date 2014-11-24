@@ -1,6 +1,6 @@
 #![feature(if_let)]
+#![feature(globs)]
 
-extern crate native;
 extern crate sdl2;
 
 use std::os;
@@ -18,7 +18,7 @@ fn main() {
     };
 
     let mut emulator = chip8::Emulator::new();
-    match file.read(emulator.mem.ram) {
+    match file.read(&mut emulator.mem.ram) {
         Ok(n) => println!("Loaded program of size: {}", n),
         Err(err) => panic!("Failed to read file: {}", err)
     }

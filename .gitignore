@@ -1,6 +1,2 @@
-/tmp/
-*.tmp.*
-*.exe
-*.dll
-*.rlib
-*.ch8
+/test
+/target

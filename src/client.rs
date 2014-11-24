@@ -1,9 +1,10 @@
 use std::mem::transmute;
 
 use sdl2;
-use sdl2::{event, keycode};
+use sdl2::event;
+use sdl2::event::poll_event;
+use sdl2::keycode::KeyCode;
 use sdl2::video::{Window, PosCentered, OPENGL};
-use sdl2::event::{QuitEvent, poll_event};
 use sdl2::surface::Surface;
 
 use chip8;
@@ -37,21 +38,21 @@ pub fn run(mut emulator: chip8::Emulator) {
     'main: loop {
         'event: loop {
             match event::poll_event() {
-                event::QuitEvent(_) => break 'main,
+                event::Quit(_) => break 'main,
 
-                event::KeyDownEvent(_, _, code, _, _) => {
+                event::KeyDown(_, _, code, _, _, _) => {
                     if let Some(key) = convert_keycode(code) {
                         emulator.keydown(key);
                     }
                 }
 
-                event::KeyUpEvent(_, _, code, _, _) => {
+                event::KeyUp(_, _, code, _, _, _) => {
                     if let Some(val) = convert_keycode(code) {
                         emulator.keyup(val);
                     }
                 }
 
-                event::NoEvent => break,
+                event::None => break,
                 _ => continue,
             }
         }
@@ -73,7 +74,7 @@ pub fn run(mut emulator: chip8::Emulator) {
     }
 }
 
-fn convert_keycode(code: keycode::KeyCode) -> Option<u8> {
+fn convert_keycode(code: KeyCode) -> Option<u8> {
     // ------------
     // 1234    123C
     // QWER => 456D
@@ -81,22 +82,22 @@ fn convert_keycode(code: keycode::KeyCode) -> Option<u8> {
     // ZXCV    A0BF
     // ------------
     match code {
-        keycode::Num1Key => Some(0x1),
-        keycode::Num2Key => Some(0x2),
-        keycode::Num3Key => Some(0x3),
-        keycode::Num4Key => Some(0xC),
-        keycode::QKey => Some(0x4),
-        keycode::WKey => Some(0x5),
-        keycode::EKey => Some(0x6),
-        keycode::RKey => Some(0xD),
-        keycode::AKey => Some(0x7),
-        keycode::SKey => Some(0x8),
-        keycode::DKey => Some(0x9),
-        keycode::FKey => Some(0xE),
-        keycode::ZKey => Some(0xA),
-        keycode::XKey => Some(0x0),
-        keycode::CKey => Some(0xB),
-        keycode::VKey => Some(0xF),
+        KeyCode::Num1 => Some(0x1),
+        KeyCode::Num2 => Some(0x2),
+        KeyCode::Num3 => Some(0x3),
+        KeyCode::Num4 => Some(0xC),
+        KeyCode::Q => Some(0x4),
+        KeyCode::W => Some(0x5),
+        KeyCode::E => Some(0x6),
+        KeyCode::R => Some(0xD),
+        KeyCode::A => Some(0x7),
+        KeyCode::S => Some(0x8),
+        KeyCode::D => Some(0x9),
+        KeyCode::F => Some(0xE),
+        KeyCode::Z => Some(0xA),
+        KeyCode::X => Some(0x0),
+        KeyCode::C => Some(0xB),
+        KeyCode::V=> Some(0xF),
         _ => None
     }
 }

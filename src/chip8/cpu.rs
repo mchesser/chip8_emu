@@ -4,6 +4,9 @@ use std::iter::range_inclusive;
 use chip8;
 use chip8::mem;
 
+pub use self::Operation::*;
+pub use self::Value::*;
+
 pub const OPCODE_SIZE: u16 = 2;
 
 pub type RegId = u8;
