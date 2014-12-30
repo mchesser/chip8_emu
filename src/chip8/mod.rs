@@ -37,7 +37,7 @@ impl Emulator {
 
     /// Return the internal video data
     pub fn display(&self) -> &[u8] {
-        self.mem.video.data.as_slice()
+        &self.mem.video.data
     }
 
     /// Signal a clock tick to the emulator

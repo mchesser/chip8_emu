@@ -2,11 +2,11 @@
 name = "chip8_emu"
 version = "0.0.1"
 dependencies = [
- "sdl2 0.0.1-alpha.1 (git+https://github.com/AngryLawyer/rust-sdl2.git#c8a3c7afc0974df68e8996cce7f25fb9f827ef77)",
+ "sdl2 0.0.13 (git+https://github.com/AngryLawyer/rust-sdl2.git)",
 ]
 
 [[package]]
 name = "sdl2"
-version = "0.0.1-alpha.1"
-source = "git+https://github.com/AngryLawyer/rust-sdl2.git#c8a3c7afc0974df68e8996cce7f25fb9f827ef77"
+version = "0.0.13"
+source = "git+https://github.com/AngryLawyer/rust-sdl2.git#00f58349b9f7739faa48d1660a5eb01c070f386b"
 

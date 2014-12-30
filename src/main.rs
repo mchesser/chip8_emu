@@ -1,4 +1,3 @@
-#![feature(if_let)]
 #![feature(globs)]
 
 extern crate sdl2;
@@ -14,14 +13,16 @@ fn main() {
     let args = os::args();
     let mut file = match File::open(&Path::new(args[1].as_slice())) {
         Ok(f) => f,
-        Err(err) => panic!("Failed to open input program: {}", err)
+        Err(e) => panic!("Failed to open input program: {}", e)
     };
 
     let mut emulator = chip8::Emulator::new();
     match file.read(&mut emulator.mem.ram) {
         Ok(n) => println!("Loaded program of size: {}", n),
-        Err(err) => panic!("Failed to read file: {}", err)
+        Err(e) => panic!("Failed to read file: {}", e)
     }
 
-    client::run(emulator);
+    if let Err(e) = client::run(emulator) {
+        panic!("Client experienced a fatal error and had to close: {}", e);
+    };
 }

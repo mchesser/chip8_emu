@@ -74,7 +74,7 @@ impl Memory {
     /// or 0 if that doesn't happen.
     pub fn draw(&mut self, x: u8, y: u8, h: u8, addr: u16) -> u8 {
         let mut flipped = 0x0;
-        for dy in range(0, h) {
+        for dy in (0..h) {
             let draw_data = *(self.map_addr(addr + dy as u16));
             flipped |= self.video.draw(x, y + dy, draw_data);
         }

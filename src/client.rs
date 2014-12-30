@@ -1,11 +1,15 @@
 use std::mem::transmute;
 
 use sdl2;
-use sdl2::event;
-use sdl2::event::poll_event;
+use sdl2::event::{Event, poll_event};
 use sdl2::keycode::KeyCode;
-use sdl2::video::{Window, PosCentered, OPENGL};
-use sdl2::surface::Surface;
+
+use sdl2::video::{Window, OPENGL};
+use sdl2::video::WindowPos::PosCentered;
+use sdl2::render;
+use sdl2::render::{Renderer, RenderDriverIndex};
+use sdl2::render::{Texture, TextureAccess};
+use sdl2::pixels::PixelFormatFlag;
 
 use chip8;
 use timer::Timer;
@@ -14,45 +18,42 @@ const SCALE: int = 8;
 const WIDTH: int = chip8::video::WIDTH as int * SCALE;
 const HEIGHT: int = chip8::video::HEIGHT as int * SCALE;
 
-const SRC_WIDTH: uint = chip8::video::BYTES_WIDTH as uint;
-const SRC_HEIGHT: uint = chip8::video::HEIGHT as uint;
+const SRC_WIDTH: int = chip8::video::WIDTH as int;
+const SRC_HEIGHT: int = chip8::video::HEIGHT as int;
 
-pub fn run(mut emulator: chip8::Emulator) {
+pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
     sdl2::init(sdl2::INIT_EVERYTHING);
 
-    let window = match Window::new("CHIP8 Emulator", PosCentered, PosCentered,
-        WIDTH, HEIGHT, OPENGL)
-    {
-        Ok(window) => window,
-        Err(err) => panic!(format!("failed to create window: {}", err))
-    };
+    let window = try!(Window::new("CHIP8 Emulator", PosCentered, PosCentered,
+        WIDTH, HEIGHT, OPENGL));
 
-    let mut surface = match window.get_surface() {
-        Ok(surface) => surface,
-        Err(err) => panic!(format!("failed to get window surface: {}", err))
-    };
+    let renderer = try!(Renderer::from_window(window, RenderDriverIndex::Auto,
+        render::ACCELERATED));
+
+    let mut emulator_texture = try!(renderer.create_texture(PixelFormatFlag::ARGB8888,
+        TextureAccess::Streaming, SRC_WIDTH, SRC_HEIGHT));
 
     let mut cpu_timer = Timer::new();
     let mut timer = Timer::new();
 
     'main: loop {
         'event: loop {
-            match event::poll_event() {
-                event::Quit(_) => break 'main,
+            match poll_event() {
+                Event::Quit(_) => break 'main,
 
-                event::KeyDown(_, _, code, _, _, _) => {
+                Event::KeyDown(_, _, code, _, _, _) => {
                     if let Some(key) = convert_keycode(code) {
                         emulator.keydown(key);
                     }
                 }
 
-                event::KeyUp(_, _, code, _, _, _) => {
+                Event::KeyUp(_, _, code, _, _, _) => {
                     if let Some(val) = convert_keycode(code) {
                         emulator.keyup(val);
                     }
                 }
 
-                event::None => break,
+                Event::None => break,
                 _ => continue,
             }
         }
@@ -68,10 +69,15 @@ pub fn run(mut emulator: chip8::Emulator) {
         }
 
         if emulator.poll_screen() {
-            render_screen(&mut surface, emulator.display());
-            window.update_surface();
+            try!(renderer.clear());
+            try!(render_screen(&mut emulator_texture, emulator.display()));
+            try!(renderer.copy(&emulator_texture, None, None));
+
+            renderer.present();
         }
     }
+
+    Ok(())
 }
 
 fn convert_keycode(code: KeyCode) -> Option<u8> {
@@ -97,37 +103,28 @@ fn convert_keycode(code: KeyCode) -> Option<u8> {
         KeyCode::Z => Some(0xA),
         KeyCode::X => Some(0x0),
         KeyCode::C => Some(0xB),
-        KeyCode::V=> Some(0xF),
+        KeyCode::V => Some(0xF),
         _ => None
     }
 }
 
-fn render_screen(surface: &mut Surface, chip8_image: &[u8]) {
+fn render_screen(tex: &mut Texture, chip8_image: &[u8]) -> Result<(), String> {
     // Colors in the format ARGB
-    static BLACK: u32 = 0x00_00_00_00;
-    static WHITE: u32 = 0x00_FF_FF_FF;
+    const BLACK: u32 = 0xFF_00_00_00;
+    const WHITE: u32 = 0xFF_FF_FF_FF;
 
-    surface.with_lock(|pixels| {
+    tex.with_lock(None, |mut pixels, _| {
         unsafe {
-            let mut dest: *mut u32 = transmute(&pixels[0]);
-            let src: *const u8 = transmute(&chip8_image[0]);
-
-            for src_y in range(0, SRC_HEIGHT) {
-                for _ in range(0, SCALE) {
-                    for src_x in range(0, SRC_WIDTH) {
-                        let row = src.offset((src_x + src_y * SRC_WIDTH) as int);
-                        for xx in range(0, 8).rev() {
-                            let pixel = if is_black(*row, xx) { BLACK } else { WHITE };
-                            for _ in range(0, SCALE) {
-                                *dest = pixel;
-                                dest = dest.offset(1);
-                            }
-                        }
-                    }
+            let dest: &mut [u32] = transmute(pixels.as_mut_slice());
+            let mut offset = 0;
+            for &block in chip8_image.iter() {
+                for bit in (0..8).rev() {
+                    dest[offset] = if is_black(block, bit) { BLACK } else { WHITE };
+                    offset += 1;
                 }
             }
         }
-    });
+    })
 }
 
 fn is_black(byte: u8, bit: uint) -> bool {
