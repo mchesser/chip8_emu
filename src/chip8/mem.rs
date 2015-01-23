@@ -8,12 +8,12 @@ pub const DISPLAY_START: u16 = 0xF00;
 pub const TOTAL_MEMORY: u16 = 0x1000;
 
 pub const RAM_SIZE: u16 = RESERVED_START - RAM_START;
-pub const STACK_SIZE: uint = 16;
+pub const STACK_SIZE: usize = 16;
 
 pub static ZERO: u8 = 0;
 
 pub struct Memory {
-    pub ram: [u8, ..(RAM_SIZE as uint)],
+    pub ram: [u8; (RAM_SIZE as usize)],
     stack: Vec<u16>,
     pub input: chip8::Input,
     pub video: chip8::Video,
@@ -22,7 +22,7 @@ pub struct Memory {
 impl Memory {
     pub fn new() -> Memory {
         Memory {
-            ram: [0, ..(RAM_SIZE as uint)],
+            ram: [0; (RAM_SIZE as usize)],
             stack: vec![],
             input: chip8::Input::new(),
             video: chip8::Video::new(),
@@ -91,17 +91,17 @@ impl Memory {
             panic!("Address too large: {}", addr);
         }
         else if addr >= DISPLAY_START {
-            &self.video.data[(addr - DISPLAY_START) as uint]
+            &self.video.data[(addr - DISPLAY_START) as usize]
         }
         else if addr >= RESERVED_START {
             panic!("Attempted to access reserved address: {}", addr);
         }
         else if addr >= RAM_START {
-            &self.ram[(addr - RAM_START) as uint]
+            &self.ram[(addr - RAM_START) as usize]
         }
         else if addr >= GLYPHS_START {
             if addr < video::GLYPHS.len() as u16 {
-                &video::GLYPHS[(addr - GLYPHS_START) as uint]
+                &video::GLYPHS[(addr - GLYPHS_START) as usize]
             }
             else {
                 // The glyphs don't use up the entire reserved space, so return 0 if the address is
@@ -117,13 +117,13 @@ impl Memory {
             panic!("Address too large: {}", addr);
         }
         else if addr >= DISPLAY_START {
-            &mut self.video.data[(addr - DISPLAY_START) as uint]
+            &mut self.video.data[(addr - DISPLAY_START) as usize]
         }
         else if addr >= RESERVED_START {
             panic!("Attempted to access reserved address: {}", addr);
         }
         else if addr >= RAM_START {
-            &mut self.ram[(addr - RAM_START) as uint]
+            &mut self.ram[(addr - RAM_START) as usize]
         }
         else if addr >= GLYPHS_START {
             panic!("Attempted to access read only memory: {}", addr);

@@ -1,5 +1,3 @@
-#![feature(globs)]
-
 extern crate sdl2;
 
 use std::os;

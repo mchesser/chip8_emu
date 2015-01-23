@@ -1,5 +1,5 @@
-extern crate time;
-use self::time::precise_time_s;
+extern crate clock_ticks;
+use self::clock_ticks::precise_time_s;
 
 pub struct Timer {
     last: f64

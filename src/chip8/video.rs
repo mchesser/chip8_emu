@@ -3,7 +3,7 @@ pub const HEIGHT: u8 = 32;
 pub const BYTES_WIDTH: u8 = WIDTH / 8;
 
 /// CHIP-8 gliphs, see: mattmik.com/chip8.html
-pub static GLYPHS: [u8,..16*5] =  [
+pub static GLYPHS: [u8; 16*5] =  [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -23,14 +23,14 @@ pub static GLYPHS: [u8,..16*5] =  [
 ];
 
 pub struct Video {
-    pub data: [u8, ..(BYTES_WIDTH * HEIGHT) as uint],
+    pub data: [u8; (BYTES_WIDTH * HEIGHT) as usize],
     pub screen_modified: bool,
 }
 
 impl Video {
     pub fn new() -> Video {
         Video {
-            data: [0x00, ..(BYTES_WIDTH * HEIGHT) as uint],
+            data: [0x00; (BYTES_WIDTH * HEIGHT) as usize],
             screen_modified: true,
         }
     }
@@ -48,15 +48,15 @@ impl Video {
         let x = x % WIDTH;
         let y = y % HEIGHT;
 
-        let i = (x / 8 + y * BYTES_WIDTH) as uint;
+        let i = (x / 8 + y * BYTES_WIDTH) as usize;
         let shift = x % 8;
 
         // This draw command was not byte aligned, so we need xor over 2 bytes
         if shift != 0 {
-            let i2 = ((x / 8 + 1) % BYTES_WIDTH + y * BYTES_WIDTH) as uint;
+            let i2 = ((x / 8 + 1) % BYTES_WIDTH + y * BYTES_WIDTH) as usize;
 
-            let lval = val >> shift as uint;
-            let rval = val << (8 - shift as uint);
+            let lval = val >> shift as usize;
+            let rval = val << (8 - shift as usize);
 
             let lold = self.data[i];
             self.data[i] ^= lval;

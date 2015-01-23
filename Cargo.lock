@@ -2,11 +2,39 @@
 name = "chip8_emu"
 version = "0.0.1"
 dependencies = [
- "sdl2 0.0.13 (git+https://github.com/AngryLawyer/rust-sdl2.git)",
+ "clock_ticks 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2 0.0.18 (git+https://github.com/AngryLawyer/rust-sdl2.git)",
 ]
 
 [[package]]
+name = "bitflags"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "clock_ticks"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "pkg-config"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "sdl2"
-version = "0.0.13"
-source = "git+https://github.com/AngryLawyer/rust-sdl2.git#00f58349b9f7739faa48d1660a5eb01c070f386b"
+version = "0.0.18"
+source = "git+https://github.com/AngryLawyer/rust-sdl2.git#1b29c7a1a6d688325da1e1f096a0a255bb14477c"
+dependencies = [
+ "bitflags 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2-sys 0.0.16 (git+https://github.com/AngryLawyer/rust-sdl2.git)",
+]
+
+[[package]]
+name = "sdl2-sys"
+version = "0.0.16"
+source = "git+https://github.com/AngryLawyer/rust-sdl2.git#1b29c7a1a6d688325da1e1f096a0a255bb14477c"
+dependencies = [
+ "pkg-config 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 

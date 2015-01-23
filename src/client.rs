@@ -14,12 +14,12 @@ use sdl2::pixels::PixelFormatFlag;
 use chip8;
 use timer::Timer;
 
-const SCALE: int = 8;
-const WIDTH: int = chip8::video::WIDTH as int * SCALE;
-const HEIGHT: int = chip8::video::HEIGHT as int * SCALE;
+const SCALE: isize = 8;
+const WIDTH: isize = chip8::video::WIDTH as isize * SCALE;
+const HEIGHT: isize = chip8::video::HEIGHT as isize * SCALE;
 
-const SRC_WIDTH: int = chip8::video::WIDTH as int;
-const SRC_HEIGHT: int = chip8::video::HEIGHT as int;
+const SRC_WIDTH: isize = chip8::video::WIDTH as isize;
+const SRC_HEIGHT: isize = chip8::video::HEIGHT as isize;
 
 pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
     sdl2::init(sdl2::INIT_EVERYTHING);
@@ -127,6 +127,6 @@ fn render_screen(tex: &mut Texture, chip8_image: &[u8]) -> Result<(), String> {
     })
 }
 
-fn is_black(byte: u8, bit: uint) -> bool {
+fn is_black(byte: u8, bit: usize) -> bool {
     byte & (0x1 << bit) == 0
 }
