@@ -1,7 +1,8 @@
+#![feature(core, rand, io, os, path)]
 extern crate sdl2;
 
 use std::os;
-use std::io::File;
+use std::old_io::File;
 
 mod chip8;
 mod timer;

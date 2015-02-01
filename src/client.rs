@@ -9,29 +9,29 @@ use sdl2::video::WindowPos::PosCentered;
 use sdl2::render;
 use sdl2::render::{Renderer, RenderDriverIndex};
 use sdl2::render::{Texture, TextureAccess};
-use sdl2::pixels::PixelFormatFlag;
+use sdl2::pixels::PixelFormatEnum;
 
 use chip8;
 use timer::Timer;
 
-const SCALE: isize = 8;
-const WIDTH: isize = chip8::video::WIDTH as isize * SCALE;
-const HEIGHT: isize = chip8::video::HEIGHT as isize * SCALE;
+const SCALE: i32 = 8;
+const WIDTH: i32 = chip8::video::WIDTH as i32 * SCALE;
+const HEIGHT: i32 = chip8::video::HEIGHT as i32 * SCALE;
 
-const SRC_WIDTH: isize = chip8::video::WIDTH as isize;
-const SRC_HEIGHT: isize = chip8::video::HEIGHT as isize;
+const SRC_WIDTH: i32 = chip8::video::WIDTH as i32;
+const SRC_HEIGHT: i32 = chip8::video::HEIGHT as i32;
 
 pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
     sdl2::init(sdl2::INIT_EVERYTHING);
 
-    let window = try!(Window::new("CHIP8 Emulator", PosCentered, PosCentered,
-        WIDTH, HEIGHT, OPENGL));
+    let window = try!(Window::new("CHIP8 Emulator", PosCentered, PosCentered, WIDTH, HEIGHT, 
+        OPENGL));
 
     let renderer = try!(Renderer::from_window(window, RenderDriverIndex::Auto,
         render::ACCELERATED));
 
-    let mut emulator_texture = try!(renderer.create_texture(PixelFormatFlag::ARGB8888,
-        TextureAccess::Streaming, SRC_WIDTH, SRC_HEIGHT));
+    let mut emulator_texture = try!(renderer.create_texture(PixelFormatEnum::ARGB8888,
+        TextureAccess::Streaming, (SRC_WIDTH, SRC_HEIGHT)));
 
     let mut cpu_timer = Timer::new();
     let mut timer = Timer::new();
@@ -39,15 +39,15 @@ pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
     'main: loop {
         'event: loop {
             match poll_event() {
-                Event::Quit(_) => break 'main,
+                Event::Quit{..} => break 'main,
 
-                Event::KeyDown(_, _, code, _, _, _) => {
+                Event::KeyDown{ keycode: code, ..} => {
                     if let Some(key) = convert_keycode(code) {
                         emulator.keydown(key);
                     }
                 }
 
-                Event::KeyUp(_, _, code, _, _, _) => {
+                Event::KeyUp{ keycode: code, ..} => {
                     if let Some(val) = convert_keycode(code) {
                         emulator.keyup(val);
                     }
@@ -69,11 +69,12 @@ pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
         }
 
         if emulator.poll_screen() {
-            try!(renderer.clear());
-            try!(render_screen(&mut emulator_texture, emulator.display()));
-            try!(renderer.copy(&emulator_texture, None, None));
-
-            renderer.present();
+            let mut drawer = renderer.drawer();
+            
+            drawer.clear();
+            render_screen(&mut emulator_texture, emulator.display());
+            drawer.copy(&emulator_texture, None, None);
+            drawer.present();
         }
     }
 
@@ -108,23 +109,23 @@ fn convert_keycode(code: KeyCode) -> Option<u8> {
     }
 }
 
-fn render_screen(tex: &mut Texture, chip8_image: &[u8]) -> Result<(), String> {
+fn render_screen(tex: &mut Texture, chip8_image: &[u8]) {
     // Colors in the format ARGB
     const BLACK: u32 = 0xFF_00_00_00;
     const WHITE: u32 = 0xFF_FF_FF_FF;
 
-    tex.with_lock(None, |mut pixels, _| {
+    let _ = tex.with_lock(None, |mut pixels, _| {
         unsafe {
             let dest: &mut [u32] = transmute(pixels.as_mut_slice());
             let mut offset = 0;
             for &block in chip8_image.iter() {
-                for bit in (0..8).rev() {
+                for bit in (0..8us).rev() {
                     dest[offset] = if is_black(block, bit) { BLACK } else { WHITE };
                     offset += 1;
                 }
             }
         }
-    })
+    });
 }
 
 fn is_black(byte: u8, bit: usize) -> bool {

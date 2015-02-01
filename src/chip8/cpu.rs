@@ -10,13 +10,13 @@ pub use self::Value::*;
 pub const OPCODE_SIZE: u16 = 2;
 
 pub type RegId = u8;
-#[deriving(Show)]
+#[derive(Debug)]
 pub enum Value {
     Reg(RegId),
     Const(u8),
 }
 
-#[deriving(Show)]
+#[derive(Debug)]
 pub enum Operation {
     // Special 1
     CallRCA(u16),
