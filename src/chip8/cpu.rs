@@ -1,8 +1,6 @@
-use std::rand;
-use std::rand::Rng;
+use rand::{self, Rng};
 use std::iter::range_inclusive;
-use chip8;
-use chip8::mem;
+use chip8::{self, mem};
 
 pub use self::Operation::*;
 pub use self::Value::*;

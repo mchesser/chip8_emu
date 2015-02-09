@@ -12,3 +12,4 @@ git = "https://github.com/AngryLawyer/rust-sdl2.git"
 
 [dependencies]
 clock_ticks = "*"
+rand = "*"

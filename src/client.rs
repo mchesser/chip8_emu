@@ -118,7 +118,7 @@ fn render_screen(tex: &mut Texture, chip8_image: &[u8]) {
         unsafe {
             let dest: &mut [u32] = transmute(pixels.as_mut_slice());
             let mut offset = 0;
-            for &block in chip8_image.iter() {
+            for &block in chip8_image {
                 for bit in (0..8us).rev() {
                     dest[offset] = if is_black(block, bit) { BLACK } else { WHITE };
                     offset += 1;

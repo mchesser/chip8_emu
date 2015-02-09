@@ -1,7 +1,7 @@
-#![feature(core, rand, io, os, path)]
+#![feature(core, io, env, os, path)]
 extern crate sdl2;
+extern crate rand;
 
-use std::os;
 use std::old_io::File;
 
 mod chip8;
@@ -9,8 +9,8 @@ mod timer;
 mod client;
 
 fn main() {
-    let args = os::args();
-    let mut file = match File::open(&Path::new(args[1].as_slice())) {
+    let filename = std::env::args().skip(1).next().unwrap();
+    let mut file = match File::open(&Path::new(filename.into_string().unwrap())) {
         Ok(f) => f,
         Err(e) => panic!("Failed to open input program: {}", e)
     };
