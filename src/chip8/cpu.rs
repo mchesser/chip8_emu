@@ -115,7 +115,7 @@ impl Cpu {
             //
             // Special 1
             //
-            CallRCA(_) => unimplemented!(),
+            CallRCA(..) => unimplemented!(),
             Unimplemented(code) => println!("Unimplemented opcode: {}", code),
 
             //
@@ -130,13 +130,13 @@ impl Cpu {
 
             Return => self.pc = mem.stack_pop(),
 
-            SkipIfEq(reg, Const(val)) => {
-                if self.V[reg as usize] == val {
+            SkipIfEq(r, Const(val)) => {
+                if self.V[r as usize] == val {
                     self.pc += 2;
                 }
             },
-            SkipIfEq(reg1, Reg(reg2)) => {
-                if self.V[reg1 as usize] == self.V[reg2 as usize] {
+            SkipIfEq(r1, Reg(r2)) => {
+                if self.V[r1 as usize] == self.V[r2 as usize] {
                     self.pc += 2;
                 }
             },
@@ -146,8 +146,8 @@ impl Cpu {
                     self.pc += 2;
                 }
             },
-            SkipIfNotEq(reg1, Reg(reg2)) => {
-                if self.V[reg1 as usize] != self.V[reg2 as usize] {
+            SkipIfNotEq(r1, Reg(r2)) => {
+                if self.V[r1 as usize] != self.V[r2 as usize] {
                     self.pc += 2;
                 }
             },
@@ -156,45 +156,45 @@ impl Cpu {
             // Arithmetic
             //
             Set(reg, Const(val)) => self.V[reg as usize] = val,
-            Set(reg1, Reg(reg2)) => self.V[reg1 as usize] = self.V[reg2 as usize],
+            Set(r1, Reg(r2)) => self.V[r1 as usize] = self.V[r2 as usize],
 
             Add(reg, Const(val)) => self.V[reg as usize] += val,
-            Add(reg1, Reg(reg2)) => {
-                let result = self.V[reg1 as usize] as u16 + self.V[reg2 as usize] as u16;
+            Add(r1, Reg(r2)) => {
+                let result = self.V[r1 as usize] as u16 + self.V[r2 as usize] as u16;
                 self.V[0xF] = if overflow8(result) { 1 } else { 0 };
-                self.V[reg1 as usize] = result as u8;
+                self.V[r1 as usize] = result as u8;
             },
 
-            Sub(reg1, reg2) => {
-                let result = self.V[reg1 as usize] as u16 - self.V[reg2 as usize] as u16;
+            Sub(r1, r2) => {
+                let result = self.V[r1 as usize] as u16 - self.V[r2 as usize] as u16;
                 self.V[0xF] = if overflow8(result) { 0 } else { 1 };
-                self.V[reg1 as usize] = result as u8;
+                self.V[r1 as usize] = result as u8;
             },
-            SubRev(reg1, reg2) => {
-                let result = self.V[reg2 as usize] as u16 - self.V[reg1 as usize] as u16;
+            SubRev(r1, r2) => {
+                let result = self.V[r2 as usize] as u16 - self.V[r1 as usize] as u16;
                 self.V[0xF] = if overflow8(result) { 0 } else { 1 };
-                self.V[reg1 as usize] = result as u8;
+                self.V[r1 as usize] = result as u8;
             },
 
-            Or(reg1, reg2) => self.V[reg1 as usize] = self.V[reg1 as usize] | self.V[reg2 as usize],
-            And(reg1, reg2) => self.V[reg1 as usize] = self.V[reg1 as usize] & self.V[reg2 as usize],
-            Xor(reg1, reg2) => self.V[reg1 as usize] = self.V[reg1 as usize] ^ self.V[reg2 as usize],
+            Or(r1, r2) => self.V[r1 as usize] = self.V[r1 as usize] | self.V[r2 as usize],
+            And(r1, r2) => self.V[r1 as usize] = self.V[r1 as usize] & self.V[r2 as usize],
+            Xor(r1, r2) => self.V[r1 as usize] = self.V[r1 as usize] ^ self.V[r2 as usize],
 
-            Shr(reg1, reg2) => {
-                self.V[0xF] = self.V[reg2 as usize] & 0x1;
-                self.V[reg1 as usize] = self.V[reg2 as usize] >> 1;
+            Shr(r1, r2) => {
+                self.V[0xF] = self.V[r2 as usize] & 0x1;
+                self.V[r1 as usize] = self.V[r2 as usize] >> 1;
             },
-            Shl(reg1, reg2) => {
-                self.V[0xF] = self.V[reg2 as usize] >> 7;
-                self.V[reg1 as usize] = self.V[reg2 as usize] << 1;
+            Shl(r1, r2) => {
+                self.V[0xF] = self.V[r2 as usize] >> 7;
+                self.V[r1 as usize] = self.V[r2 as usize] << 1;
             },
 
             //
             // Address manipulation
             //
             SetAddr(addr) => self.I = addr,
-            AddAddr(reg) => {
-                let result = self.I + self.V[reg as usize] as u16;
+            AddAddr(r) => {
+                let result = self.I + self.V[r as usize] as u16;
                 self.V[0xF] = if overflow12(result) { 1 } else { 0 };
                 self.I = result % 0x1000;
             },
@@ -203,20 +203,20 @@ impl Cpu {
             //
             // Manipulation on multiple bytes
             //
-            StoreBcd(reg) => {
-                let val = self.V[reg as usize];
+            StoreBcd(r) => {
+                let val = self.V[r as usize];
                 mem.write_byte(self.I, (val / 100) % 10);
                 mem.write_byte(self.I+1, (val / 10) % 10);
                 mem.write_byte(self.I+2, (val / 1) % 10);
             },
 
-            LoadBytes(reg) => {
-                for i in range_inclusive(0, reg as usize) {
+            LoadBytes(r) => {
+                for i in range_inclusive(0, r as usize) {
                     self.V[i] = mem.read_byte(self.I + i as u16);
                 }
             },
-            StoreBytes(reg) => {
-                for i in range_inclusive(0, reg as usize) {
+            StoreBytes(r) => {
+                for i in range_inclusive(0, r as usize) {
                     mem.write_byte(self.I + i as u16, self.V[i]);
                 }
             },
@@ -224,29 +224,29 @@ impl Cpu {
             //
             // Special 2
             //
-            GetRandom(reg, val) => self.V[reg as usize] = self.rng.gen::<u8>() & val,
+            GetRandom(r, val) => self.V[r as usize] = self.rng.gen::<u8>() & val,
             Draw(x, y, n) => {
                 self.V[0xF] = mem.draw(self.V[x as usize], self.V[y as usize], n, self.I);
             },
-            LoadGlyph(reg) => self.I = mem.load_glyph(self.V[reg as usize]),
+            LoadGlyph(r) => self.I = mem.load_glyph(self.V[r as usize]),
             ClearScreen => mem.clear_disp(),
 
             //
             // Keyboard management
             //
-            SkipIfKeyPressed(reg) => {
-                if mem.is_keydown(self.V[reg as usize]) {
+            SkipIfKeyPressed(r) => {
+                if mem.is_keydown(self.V[r as usize]) {
                     self.pc += 2;
                 }
             },
-            SkipIfKeyNotPressed(reg) => {
-                if !mem.is_keydown(self.V[reg as usize]) {
+            SkipIfKeyNotPressed(r) => {
+                if !mem.is_keydown(self.V[r as usize]) {
                     self.pc += 2;
                 }
             },
-            KeyWait(reg) => {
+            KeyWait(r) => {
                 match mem.get_key() {
-                    Some(key) => self.V[reg as usize] = key,
+                    Some(key) => self.V[r as usize] = key,
                     None => self.pc -= 2,
                 }
             },
@@ -254,9 +254,9 @@ impl Cpu {
             //
             // Timer management
             //
-            GetDelay(reg) => self.V[reg as usize] = self.delay,
-            SetDelay(reg) => self.delay = self.V[reg as usize],
-            SetSound(reg) => self.sound = self.V[reg as usize],
+            GetDelay(r) => self.V[r as usize] = self.delay,
+            SetDelay(r) => self.delay = self.V[r as usize],
+            SetSound(r) => self.sound = self.V[r as usize],
         }
     }
 }

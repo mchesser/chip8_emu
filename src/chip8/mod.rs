@@ -1,4 +1,4 @@
-use std;
+use std::mem::replace;
 
 pub use chip8::decoder::decode;
 pub use chip8::cpu::Cpu;
@@ -6,10 +6,10 @@ pub use chip8::mem::Memory;
 pub use chip8::input::Input;
 pub use chip8::video::Video;
 
+pub mod video;
 mod cpu;
 mod mem;
 mod input;
-pub mod video;
 mod decoder;
 
 /// The timer speed = 60hz
@@ -56,6 +56,6 @@ impl Emulator {
     }
 
     pub fn poll_screen(&mut self) -> bool {
-        std::mem::replace(&mut self.mem.video.screen_modified, false)
+        replace(&mut self.mem.video.screen_modified, false)
     }
 }
