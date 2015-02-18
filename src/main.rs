@@ -1,4 +1,4 @@
-#![feature(core, io, env, os, path)]
+#![feature(core, io, env, path)]
 extern crate sdl2;
 extern crate rand;
 
@@ -10,7 +10,7 @@ mod client;
 
 fn main() {
     let filename = std::env::args().skip(1).next().unwrap();
-    let mut file = match File::open(&Path::new(filename.into_string().unwrap())) {
+    let mut file = match File::open(&Path::new(filename)) {
         Ok(f) => f,
         Err(e) => panic!("Failed to open input program: {}", e)
     };
