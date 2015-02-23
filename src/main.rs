@@ -1,4 +1,4 @@
-#![feature(core, io, env, path)]
+#![feature(core, old_io, env, old_path)]
 extern crate sdl2;
 extern crate rand;
 

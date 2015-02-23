@@ -1,7 +1,7 @@
 use std::mem::transmute;
 
 use sdl2;
-use sdl2::event::{Event, poll_event};
+use sdl2::event::Event;
 use sdl2::keycode::KeyCode;
 
 use sdl2::video::{Window, OPENGL};
@@ -22,9 +22,9 @@ const SRC_WIDTH: i32 = chip8::video::WIDTH as i32;
 const SRC_HEIGHT: i32 = chip8::video::HEIGHT as i32;
 
 pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
-    sdl2::init(sdl2::INIT_EVERYTHING);
+    let sdl_context = try!(sdl2::init(sdl2::INIT_EVERYTHING));
 
-    let window = try!(Window::new("CHIP8 Emulator", PosCentered, PosCentered, WIDTH, HEIGHT, 
+    let window = try!(Window::new("CHIP8 Emulator", PosCentered, PosCentered, WIDTH, HEIGHT,
         OPENGL));
 
     let renderer = try!(Renderer::from_window(window, RenderDriverIndex::Auto,
@@ -35,10 +35,11 @@ pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
 
     let mut cpu_timer = Timer::new();
     let mut timer = Timer::new();
+    let mut events = sdl_context.event_pump();
 
     'main: loop {
-        'event: loop {
-            match poll_event() {
+        for event in events.poll_iter() {
+            match event {
                 Event::Quit{..} => break 'main,
 
                 Event::KeyDown{ keycode: code, ..} => {
@@ -53,8 +54,7 @@ pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
                     }
                 }
 
-                Event::None => break,
-                _ => continue,
+                _ => {},
             }
         }
 
@@ -70,7 +70,7 @@ pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
 
         if emulator.poll_screen() {
             let mut drawer = renderer.drawer();
-            
+
             drawer.clear();
             render_screen(&mut emulator_texture, emulator.display());
             drawer.copy(&emulator_texture, None, None);
