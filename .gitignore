@@ -1,2 +1,8 @@
+*.dll
+*.out
+*.lib
+
+.settings
+
 /test
 /target

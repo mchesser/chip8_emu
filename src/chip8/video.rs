@@ -23,14 +23,14 @@ pub static GLYPHS: [u8; 16*5] =  [
 ];
 
 pub struct Video {
-    pub data: [u8; (BYTES_WIDTH * HEIGHT) as usize],
+    pub data: [u8; BYTES_WIDTH as usize * HEIGHT as usize],
     pub screen_modified: bool,
 }
 
 impl Video {
     pub fn new() -> Video {
         Video {
-            data: [0x00; (BYTES_WIDTH * HEIGHT) as usize],
+            data: [0x00; BYTES_WIDTH as usize * HEIGHT as usize],
             screen_modified: true,
         }
     }

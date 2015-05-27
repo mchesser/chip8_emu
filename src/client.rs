@@ -4,34 +4,31 @@ use sdl2;
 use sdl2::event::Event;
 use sdl2::keycode::KeyCode;
 
-use sdl2::video::{Window, OPENGL};
-use sdl2::video::WindowPos::PosCentered;
-use sdl2::render;
-use sdl2::render::{Renderer, RenderDriverIndex};
 use sdl2::render::{Texture, TextureAccess};
 use sdl2::pixels::PixelFormatEnum;
 
 use chip8;
 use timer::Timer;
 
-const SCALE: i32 = 8;
-const WIDTH: i32 = chip8::video::WIDTH as i32 * SCALE;
-const HEIGHT: i32 = chip8::video::HEIGHT as i32 * SCALE;
+const SCALE: u32 = 8;
+const WIDTH: u32 = chip8::video::WIDTH as u32 * SCALE;
+const HEIGHT: u32 = chip8::video::HEIGHT as u32 * SCALE;
 
-const SRC_WIDTH: i32 = chip8::video::WIDTH as i32;
-const SRC_HEIGHT: i32 = chip8::video::HEIGHT as i32;
+const SRC_WIDTH: u32 = chip8::video::WIDTH as u32;
+const SRC_HEIGHT: u32 = chip8::video::HEIGHT as u32;
 
 pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
-    let sdl_context = try!(sdl2::init(sdl2::INIT_EVERYTHING));
+    let mut sdl_context = sdl2::init().video().unwrap();
 
-    let window = try!(Window::new("CHIP8 Emulator", PosCentered, PosCentered, WIDTH, HEIGHT,
-        OPENGL));
+    let window = try!(sdl_context.window("CHIP8 Emulator", WIDTH, HEIGHT)
+        .position_centered()
+        .opengl()
+        .build());
 
-    let renderer = try!(Renderer::from_window(window, RenderDriverIndex::Auto,
-        render::ACCELERATED));
+    let mut renderer = try!(window.renderer().build());
 
     let mut emulator_texture = try!(renderer.create_texture(PixelFormatEnum::ARGB8888,
-        TextureAccess::Streaming, (SRC_WIDTH, SRC_HEIGHT)));
+        TextureAccess::Streaming, (SRC_WIDTH as i32, SRC_HEIGHT as i32)));
 
     let mut cpu_timer = Timer::new();
     let mut timer = Timer::new();
@@ -116,7 +113,7 @@ fn render_screen(tex: &mut Texture, chip8_image: &[u8]) {
 
     let _ = tex.with_lock(None, |mut pixels, _| {
         unsafe {
-            let dest: &mut [u32] = transmute(pixels.as_mut_slice());
+            let dest: &mut [u32] = transmute(&mut *pixels);
             let mut offset = 0;
             for &block in chip8_image {
                 for bit in (0..8).rev() {

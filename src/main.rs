@@ -1,16 +1,18 @@
-#![feature(core, old_io, env, old_path)]
+#![feature(core)]
+
 extern crate sdl2;
 extern crate rand;
 
-use std::old_io::File;
+use std::fs;
+use std::io::Read;
 
 mod chip8;
 mod timer;
 mod client;
 
 fn main() {
-    let filename = std::env::args().skip(1).next().unwrap();
-    let mut file = match File::open(&Path::new(filename)) {
+    let filename = std::env::args().nth(1).unwrap();
+    let mut file = match fs::File::open(filename) {
         Ok(f) => f,
         Err(e) => panic!("Failed to open input program: {}", e)
     };
