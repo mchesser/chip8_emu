@@ -1,16 +1,10 @@
-use std::mem::replace;
+pub use crate::chip8::{cpu::Cpu, decoder::decode, input::Input, mem::Memory, video::Video};
 
-pub use chip8::decoder::decode;
-pub use chip8::cpu::Cpu;
-pub use chip8::mem::Memory;
-pub use chip8::input::Input;
-pub use chip8::video::Video;
-
-pub mod video;
 mod cpu;
-mod mem;
-mod input;
 mod decoder;
+mod input;
+mod mem;
+pub mod video;
 
 /// The timer speed = 60hz
 pub const TICK_RATE: f64 = 1.0 / 60.0;
@@ -24,10 +18,7 @@ pub struct Emulator {
 
 impl Emulator {
     pub fn new() -> Emulator {
-        Emulator {
-            cpu: Cpu::new(),
-            mem: Memory::new(),
-        }
+        Emulator { cpu: Cpu::new(), mem: Memory::new() }
     }
 
     /// Execute the next frame
@@ -56,6 +47,6 @@ impl Emulator {
     }
 
     pub fn poll_screen(&mut self) -> bool {
-        replace(&mut self.mem.video.screen_modified, false)
+        std::mem::replace(&mut self.mem.video.screen_modified, false)
     }
 }

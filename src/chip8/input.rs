@@ -7,19 +7,11 @@ pub struct Input {
 
 impl Input {
     pub fn new() -> Input {
-        Input {
-            data: [false; 0x10],
-            pressed_key: None,
-        }
+        Input { data: [false; 0x10], pressed_key: None }
     }
 
     pub fn is_keydown(&self, keycode: u8) -> bool {
-        if keycode < 0x10 {
-            self.data[keycode as usize]
-        }
-        else {
-            false
-        }
+        if keycode < 0x10 { self.data[keycode as usize] } else { false }
     }
 
     pub fn set_keydown(&mut self, keycode: u8) {

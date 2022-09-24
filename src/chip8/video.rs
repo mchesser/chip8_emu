@@ -3,7 +3,7 @@ pub const HEIGHT: u8 = 32;
 pub const BYTES_WIDTH: u8 = WIDTH / 8;
 
 /// CHIP-8 gliphs, see: mattmik.com/chip8.html
-pub static GLYPHS: [u8; 16*5] =  [
+pub static GLYPHS: [u8; 16 * 5] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -19,7 +19,7 @@ pub static GLYPHS: [u8; 16*5] =  [
     0xF0, 0x80, 0x80, 0x80, 0xF0, // C
     0xE0, 0x90, 0x90, 0x90, 0xE0, // D
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-    0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 ];
 
 pub struct Video {
@@ -29,10 +29,7 @@ pub struct Video {
 
 impl Video {
     pub fn new() -> Video {
-        Video {
-            data: [0x00; BYTES_WIDTH as usize * HEIGHT as usize],
-            screen_modified: true,
-        }
+        Video { data: [0x00; BYTES_WIDTH as usize * HEIGHT as usize], screen_modified: true }
     }
 
     pub fn clear(&mut self) {
@@ -64,14 +61,14 @@ impl Video {
             self.data[i2] ^= rval;
 
             // If any bits were flipped as a result of drawing the sprite then return 1
-            if flipped(lold, self.data[i]) || flipped(rold, self.data[i2]) { 1 } else { 0 }
+            u8::from(flipped(lold, self.data[i]) || flipped(rold, self.data[i2]))
         }
         else {
             let old = self.data[i];
             self.data[i] ^= val;
 
             // If any bits were flipped as a result of drawing the sprite then return 1
-            if flipped(old, self.data[i]) { 1 } else { 0 }
+            u8::from(flipped(old, self.data[i]))
         }
     }
 }

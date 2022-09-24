@@ -1,14 +1,6 @@
-use std::mem::transmute;
+use macroquad::{miniquad::EventHandler, prelude::*, texture};
 
-use sdl2;
-use sdl2::event::Event;
-use sdl2::keycode::KeyCode;
-
-use sdl2::render::{Texture, TextureAccess};
-use sdl2::pixels::PixelFormatEnum;
-
-use chip8;
-use timer::Timer;
+use crate::chip8;
 
 const SCALE: u32 = 8;
 const WIDTH: u32 = chip8::video::WIDTH as u32 * SCALE;
@@ -17,65 +9,111 @@ const HEIGHT: u32 = chip8::video::HEIGHT as u32 * SCALE;
 const SRC_WIDTH: u32 = chip8::video::WIDTH as u32;
 const SRC_HEIGHT: u32 = chip8::video::HEIGHT as u32;
 
-pub fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
-    let mut sdl_context = sdl2::init().video().unwrap();
+struct Chip8EventHandler<'a> {
+    emulator: &'a mut chip8::Emulator,
+}
 
-    let window = try!(sdl_context.window("CHIP8 Emulator", WIDTH, HEIGHT)
-        .position_centered()
-        .opengl()
-        .build());
+impl<'a> EventHandler for Chip8EventHandler<'a> {
+    fn update(&mut self, _ctx: &mut macroquad::miniquad::Context) {}
+    fn draw(&mut self, _ctx: &mut macroquad::miniquad::Context) {}
 
-    let mut renderer = try!(window.renderer().build());
-
-    let mut emulator_texture = try!(renderer.create_texture(PixelFormatEnum::ARGB8888,
-        TextureAccess::Streaming, (SRC_WIDTH as i32, SRC_HEIGHT as i32)));
-
-    let mut cpu_timer = Timer::new();
-    let mut timer = Timer::new();
-    let mut events = sdl_context.event_pump();
-
-    'main: loop {
-        for event in events.poll_iter() {
-            match event {
-                Event::Quit{..} => break 'main,
-
-                Event::KeyDown{ keycode: code, ..} => {
-                    if let Some(key) = convert_keycode(code) {
-                        emulator.keydown(key);
-                    }
-                }
-
-                Event::KeyUp{ keycode: code, ..} => {
-                    if let Some(val) = convert_keycode(code) {
-                        emulator.keyup(val);
-                    }
-                }
-
-                _ => {},
-            }
-        }
-
-        if cpu_timer.elapsed_seconds() >= chip8::TICK_RATE {
-            cpu_timer.reset();
-            emulator.tick();
-        }
-
-        if timer.elapsed_seconds() >= chip8::CLOCK_RATE {
-            timer.reset();
-            emulator.frame();
-        }
-
-        if emulator.poll_screen() {
-            let mut drawer = renderer.drawer();
-
-            drawer.clear();
-            render_screen(&mut emulator_texture, emulator.display());
-            drawer.copy(&emulator_texture, None, None);
-            drawer.present();
+    fn key_up_event(
+        &mut self,
+        _ctx: &mut macroquad::miniquad::Context,
+        keycode: KeyCode,
+        _keymods: macroquad::miniquad::KeyMods,
+    ) {
+        eprintln!("keyup: {keycode:?}");
+        if let Some(key) = convert_keycode(keycode) {
+            self.emulator.keyup(key)
         }
     }
 
-    Ok(())
+    fn key_down_event(
+        &mut self,
+        _ctx: &mut macroquad::miniquad::Context,
+        keycode: KeyCode,
+        _keymods: macroquad::miniquad::KeyMods,
+        _repeat: bool,
+    ) {
+        eprintln!("keydown: {keycode:?}");
+        if let Some(key) = convert_keycode(keycode) {
+            self.emulator.keydown(key)
+        }
+    }
+}
+
+pub async fn run(mut emulator: chip8::Emulator) -> Result<(), String> {
+    macroquad::window::request_new_screen_size(WIDTH as f32, HEIGHT as f32);
+
+    let mut screen = Image::gen_image_color(SRC_WIDTH as u16, SRC_HEIGHT as u16, WHITE);
+    let screen_texture = texture::render_target(SRC_WIDTH, SRC_HEIGHT).texture;
+    screen_texture.set_filter(FilterMode::Nearest);
+
+    let mut timers = Timers::default();
+
+    let events_subscriber = utils::register_input_subscriber();
+
+    loop {
+        utils::repeat_all_miniquad_input(
+            &mut Chip8EventHandler { emulator: &mut emulator },
+            events_subscriber,
+        );
+
+        timers.elapsed(get_frame_time() as f64);
+        loop {
+            match timers.next() {
+                TimeEvent::Tick => emulator.tick(),
+                TimeEvent::Cycle => emulator.frame(),
+                TimeEvent::None => break,
+            }
+        }
+
+        if emulator.poll_screen() {
+            render_screen(&mut screen, emulator.display());
+            screen_texture.update(&screen);
+        }
+
+        draw_texture_ex(screen_texture, 0.0, 0.0, WHITE, DrawTextureParams {
+            dest_size: Some([WIDTH as f32, HEIGHT as f32].into()),
+            ..Default::default()
+        });
+
+        next_frame().await
+    }
+}
+
+enum TimeEvent {
+    Tick,
+    Cycle,
+    None,
+}
+
+#[derive(Default)]
+struct Timers {
+    tick: f64,
+    cycle: f64,
+}
+
+impl Timers {
+    pub fn next(&mut self) -> TimeEvent {
+        if self.tick < self.cycle && self.tick < 0.0 {
+            self.tick += chip8::TICK_RATE;
+            TimeEvent::Tick
+        }
+        else if self.cycle < 0.0 {
+            self.cycle += chip8::CLOCK_RATE;
+            TimeEvent::Cycle
+        }
+        else {
+            TimeEvent::None
+        }
+    }
+
+    pub fn elapsed(&mut self, time: f64) {
+        self.tick -= time;
+        self.cycle -= time;
+    }
 }
 
 fn convert_keycode(code: KeyCode) -> Option<u8> {
@@ -86,10 +124,10 @@ fn convert_keycode(code: KeyCode) -> Option<u8> {
     // ZXCV    A0BF
     // ------------
     match code {
-        KeyCode::Num1 => Some(0x1),
-        KeyCode::Num2 => Some(0x2),
-        KeyCode::Num3 => Some(0x3),
-        KeyCode::Num4 => Some(0xC),
+        KeyCode::Key1 => Some(0x1),
+        KeyCode::Key2 => Some(0x2),
+        KeyCode::Key3 => Some(0x3),
+        KeyCode::Key4 => Some(0xC),
         KeyCode::Q => Some(0x4),
         KeyCode::W => Some(0x5),
         KeyCode::E => Some(0x6),
@@ -102,27 +140,19 @@ fn convert_keycode(code: KeyCode) -> Option<u8> {
         KeyCode::X => Some(0x0),
         KeyCode::C => Some(0xB),
         KeyCode::V => Some(0xF),
-        _ => None
+        _ => None,
     }
 }
 
-fn render_screen(tex: &mut Texture, chip8_image: &[u8]) {
-    // Colors in the format ARGB
-    const BLACK: u32 = 0xFF_00_00_00;
-    const WHITE: u32 = 0xFF_FF_FF_FF;
-
-    let _ = tex.with_lock(None, |mut pixels, _| {
-        unsafe {
-            let dest: &mut [u32] = transmute(&mut *pixels);
-            let mut offset = 0;
-            for &block in chip8_image {
-                for bit in (0..8).rev() {
-                    dest[offset] = if is_black(block, bit) { BLACK } else { WHITE };
-                    offset += 1;
-                }
-            }
+fn render_screen(dst: &mut Image, chip8_image: &[u8]) {
+    let dest: &mut [[u8; 4]] = dst.get_image_data_mut();
+    let mut offset = 0;
+    for &block in chip8_image {
+        for bit in (0..8).rev() {
+            dest[offset] = if is_black(block, bit) { BLACK.into() } else { WHITE.into() };
+            offset += 1;
         }
-    });
+    }
 }
 
 fn is_black(byte: u8, bit: usize) -> bool {

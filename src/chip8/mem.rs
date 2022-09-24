@@ -1,5 +1,4 @@
-use chip8;
-use chip8::video;
+use crate::chip8;
 
 pub const GLYPHS_START: u16 = 0x000;
 pub const RAM_START: u16 = 0x200;
@@ -74,7 +73,7 @@ impl Memory {
     /// or 0 if that doesn't happen.
     pub fn draw(&mut self, x: u8, y: u8, h: u8, addr: u16) -> u8 {
         let mut flipped = 0x0;
-        for dy in (0..h) {
+        for dy in 0..h {
             let draw_data = *(self.map_addr(addr + dy as u16));
             flipped |= self.video.draw(x, y + dy, draw_data);
         }
@@ -100,8 +99,8 @@ impl Memory {
             &self.ram[(addr - RAM_START) as usize]
         }
         else if addr >= GLYPHS_START {
-            if addr < video::GLYPHS.len() as u16 {
-                &video::GLYPHS[(addr - GLYPHS_START) as usize]
+            if addr < chip8::video::GLYPHS.len() as u16 {
+                &chip8::video::GLYPHS[(addr - GLYPHS_START) as usize]
             }
             else {
                 // The glyphs don't use up the entire reserved space, so return 0 if the address is
@@ -109,7 +108,9 @@ impl Memory {
                 &ZERO
             }
         }
-        else { unreachable!() }
+        else {
+            unreachable!()
+        }
     }
 
     fn map_addr_mut(&mut self, addr: u16) -> &mut u8 {
@@ -128,6 +129,8 @@ impl Memory {
         else if addr >= GLYPHS_START {
             panic!("Attempted to access read only memory: {}", addr);
         }
-        else { unreachable!() }
+        else {
+            unreachable!()
+        }
     }
 }

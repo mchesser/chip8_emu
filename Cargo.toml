@@ -2,10 +2,8 @@
 name = "chip8_emu"
 version = "0.0.1"
 authors = ["Michael Chesser"]
-
-[dependencies.sdl2]
-git = "https://github.com/AngryLawyer/rust-sdl2.git"
+edition = "2021"
 
 [dependencies]
-clock_ticks = "*"
-rand = "*"
+macroquad = { version = "0.3.24", default-features = false }
+rand = "0.8.5"
